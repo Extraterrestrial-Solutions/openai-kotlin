@@ -275,7 +275,7 @@ public data class Reasoning(
      * The status of the reasoning item.
      */
     @SerialName("status")
-    override val status: ResponseStatus,
+    override val status: ResponseStatus? = null,
 
     /**
      * Reasoning text contents.

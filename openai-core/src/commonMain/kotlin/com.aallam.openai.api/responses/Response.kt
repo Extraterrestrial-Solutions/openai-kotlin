@@ -2,8 +2,15 @@ package com.aallam.openai.api.responses
 
 import com.aallam.openai.api.core.Status
 import com.aallam.openai.api.model.ModelId
+import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlin.jvm.JvmInline
 
 /**
  * Response from the OpenAI Responses API
@@ -43,7 +50,7 @@ public data class Response(
      * When using along with previous_response_id, the instructions from a previous response will not be carried over to the next response. This makes it simple to swap out system (or developer) messages in new responses.
      */
     @SerialName("instructions")
-    val instructions: String?,
+    val instructions: Instructions,
 
     /**
      * An upper bound for the number of tokens that can be generated for a response, including visible output tokens and reasoning tokens.
@@ -173,3 +180,24 @@ public data class IncompleteDetails(
     @SerialName("reason")
     val reason: String
 )
+
+@Serializable(with = InstructionsSerializer::class)
+public sealed interface Instructions {
+    @Serializable
+    @JvmInline
+    public value class TextInstruction(public val value: String) : Instructions
+
+    @Serializable
+    @JvmInline
+    public value class InstructionsList(public val values: List<ResponseItem>) : Instructions
+}
+
+internal class InstructionsSerializer : JsonContentPolymorphicSerializer<Instructions>(Instructions::class) {
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Instructions> {
+        return when (element) {
+            is JsonPrimitive -> Instructions.TextInstruction.serializer()
+            is JsonArray -> Instructions.InstructionsList.serializer()
+            else -> throw SerializationException("Unsupported JSON element: $element")
+        }
+    }
+}

@@ -48,6 +48,11 @@ public data class ResponseRequest(
     /** The unique ID of the previous response to the model. Use this to create multi-turn conversations. */
     @SerialName("previous_response_id") val previousResponseId: String? = null,
 
+    /** Reference to a prompt template and its variables.
+     *  [OpenAI API](https://platform.openai.com/docs/api-reference/responses/create#responses-create-prompt)
+     * */
+    @SerialName("prompt") val prompt: Prompt? = null,
+
     /** Configuration for reasoning models. */
     @SerialName("reasoning") val reasoning: ReasoningConfig? = null,
 
@@ -156,6 +161,9 @@ public class ResponseRequestBuilder {
     /** Top-p sampling parameter */
     public var topP: Double? = null
 
+    /** Reference to a prompt template */
+    public var prompt: Prompt? = null
+
     /**
      * Truncation configuration
      * - `auto`: If the context exceeds the model's context window size, the model will truncate
@@ -212,7 +220,8 @@ public class ResponseRequestBuilder {
             tools = tools,
             topP = topP,
             truncation = truncation,
-            user = user
+            user = user,
+            prompt = prompt,
         )
     }
 }
