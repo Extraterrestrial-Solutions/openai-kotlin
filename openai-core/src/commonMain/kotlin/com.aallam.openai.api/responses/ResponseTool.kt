@@ -118,7 +118,7 @@ public sealed interface ResponseTool {
          * Defaults to 0
          */
         @SerialName("score_threshold")
-        val scoreThreshold: Int? = null,
+        val scoreThreshold: Double? = null,
     )
 
 
